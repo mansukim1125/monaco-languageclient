@@ -1,7 +1,3 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) 2018 TypeFox GmbH (http://www.typefox.io). All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
 import { listen, MessageConnection } from 'vscode-ws-jsonrpc';
 import {
     MonacoLanguageClient, CloseAction, ErrorAction,
@@ -12,11 +8,10 @@ const ReconnectingWebSocket = require('reconnecting-websocket');
 
 // register Monaco languages
 monaco.languages.register({
-    id: 'json',
-    extensions: ['.json', '.bowerrc', '.jshintrc', '.jscsrc', '.eslintrc', '.babelrc'],
-    aliases: ['JSON', 'json'],
-    mimetypes: ['application/json'],
-});
+    id: 'cpp',
+    extensions: ['.cpp'],
+    aliases: ['cpp', 'C++']
+})
 
 // create Monaco editor
 const value = `{
@@ -24,18 +19,19 @@ const value = `{
     "line_endings": "unix"
 }`;
 const editor = monaco.editor.create(document.getElementById("container")!, {
-    model: monaco.editor.createModel(value, 'json', monaco.Uri.parse('inmemory://model.json')),
+    model: monaco.editor.createModel(value, 'cpp', monaco.Uri.parse('file:///home/mansu/monaco-languageclient/example/src/demo/cpp/file.cpp')),
     glyphMargin: true,
+    theme: "vs-dark",
     lightbulb: {
         enabled: true
     }
 });
 
 // install Monaco language client services
-MonacoServices.install(editor);
+MonacoServices.install(editor,{rootUri: "file:///home/mansu/monaco-languageclient/example/src/demo/cpp"});
 
 // create the web socket
-const url = createUrl('/sampleServer')
+const url = createUrl('ws://192.168.52.128:3000/cpp')
 const webSocket = createWebSocket(url);
 // listen when the web socket is opened
 listen({
@@ -53,7 +49,7 @@ function createLanguageClient(connection: MessageConnection): MonacoLanguageClie
         name: "Sample Language Client",
         clientOptions: {
             // use a language id as a document selector
-            documentSelector: ['json'],
+            documentSelector: ['cpp'],
             // disable the default error handler
             errorHandler: {
                 error: () => ErrorAction.Continue,
@@ -70,8 +66,7 @@ function createLanguageClient(connection: MessageConnection): MonacoLanguageClie
 }
 
 function createUrl(path: string): string {
-    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-    return normalizeUrl(`${protocol}://${location.host}${location.pathname}${path}`);
+    return normalizeUrl(path);
 }
 
 function createWebSocket(url: string): WebSocket {
