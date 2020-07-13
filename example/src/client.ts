@@ -31,7 +31,7 @@ const editor = monaco.editor.create(document.getElementById("container")!, {
 MonacoServices.install(editor,{rootUri: "file:///home/mansu/monaco-languageclient/example/src/demo/cpp"});
 
 // create the web socket
-const url = createUrl('ws://192.168.52.128:3000/cpp')
+const url = createUrl('ws://localhost:3000/cpp')
 const webSocket = createWebSocket(url);
 // listen when the web socket is opened
 listen({
